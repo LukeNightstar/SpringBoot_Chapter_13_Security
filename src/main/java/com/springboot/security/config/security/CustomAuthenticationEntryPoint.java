@@ -1,7 +1,7 @@
 package com.springboot.security.config.security;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.test.security.data.dto.EntryPointErrorResponse;
+import com.springboot.security.data.dto.EntryPointErrorResponse;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;

@@ -5,11 +5,9 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
-import org.springframework.security.config.annotation.web.configurers.HeadersConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
-import org.springframework.security.web.header.writers.XXssProtectionHeaderWriter;
 import org.springframework.security.web.util.matcher.AntPathRequestMatcher;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -50,12 +48,13 @@ public class SecurityConfig {
     protected SecurityFilterChain filterChain(HttpSecurity httpSecurity) throws Exception {
         return httpSecurity
                 .httpBasic(AbstractHttpConfigurer::disable)
-                .csrf(c -> c.disable())// REST API는 csrf 보안이 필요 없으므로 비활성화
+                .csrf(AbstractHttpConfigurer::disable)// REST API는 csrf 보안이 필요 없으므로 비활성화
                 // .csrf((csrf) -> csrf.disable()); 새 방식
+
                 .cors(cr -> cr.configurationSource(request -> {
                     CorsConfiguration config = new CorsConfiguration();
                     config.setAllowedOrigins(List.of("localhost:8080"));
-                    config.setAllowedMethods(Arrays.asList("GET","POST"));
+                    config.setAllowedMethods(Arrays.asList("GET", "POST"));
                     config.setAllowCredentials(true);
                     config.setAllowedHeaders(Collections.singletonList("*"));
                     config.setMaxAge(3600L); //1시간
@@ -65,11 +64,11 @@ public class SecurityConfig {
                 // JWT Token 인증방식으로 세션은 필요 없으므로 비활성화
                 .sessionManagement(sess -> sess.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
-                .headers(headers -> headers
-                                .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
-//                        .httpStrictTransportSecurity(HeadersConfigurer.HstsConfig::disable)
-                                .xssProtection(xXssConfig -> xXssConfig.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
-                )
+                /*.headers(headers -> headers
+                        .frameOptions(HeadersConfigurer.FrameOptionsConfig::deny)
+                        .httpStrictTransportSecurity(HeadersConfigurer.HstsConfig::disable)
+                        .xssProtection(xXssConfig -> xXssConfig.headerValue(XXssProtectionHeaderWriter.HeaderValue.ENABLED_MODE_BLOCK))
+                )*/
 
                 // Request에 대한 사용권한 체크s
                 .authorizeHttpRequests(auth -> auth
@@ -98,7 +97,7 @@ public class SecurityConfig {
         final UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         CorsConfiguration corsConfiguration = new CorsConfiguration().applyPermitDefaultValues();
         corsConfiguration.setAllowedOrigins(List.of("localhost:8080"));
-        corsConfiguration.setAllowedMethods(Arrays.asList("GET","POST"));
+        corsConfiguration.setAllowedMethods(Arrays.asList("GET", "POST"));
         source.registerCorsConfiguration("/**", corsConfiguration);
         return source;
     }
